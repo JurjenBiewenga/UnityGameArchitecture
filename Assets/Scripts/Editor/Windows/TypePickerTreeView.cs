@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 
 public class TypePickerTreeView : TreeView
 {
-    private List<Type> items = new List<Type>();
+    private Dictionary<int, Type> items = new Dictionary<int, Type>();
     public Action<int> OnItemDoubleClicked;
     public Action<IList<int>> OnSelectionChanged;
 
@@ -48,9 +48,8 @@ public class TypePickerTreeView : TreeView
 
         TreeViewItem root = new TreeViewItem {id = 0, depth = -1, displayName = "Root"};
         int id = 0;
-        items.Add(null);
-        
-        foreach (var keyValuePair in allTypes)
+
+        foreach (KeyValuePair<Assembly, Type[]> keyValuePair in allTypes)
         {
             TreeViewItem parent = root;
             TreeViewItem @new;
@@ -73,10 +72,7 @@ public class TypePickerTreeView : TreeView
                         if (item == null)
                         {
                             if (index == split.Length - 1)
-                                items.Add(type);
-                            else
-                                items.Add(null);
-                            
+                                items.Add(id, type);
                             @new = new TreeViewItem(id++, parent.depth + 1, s);
                             parent.AddChild(@new);
                             parent = @new;
@@ -89,10 +85,7 @@ public class TypePickerTreeView : TreeView
                     else
                     {
                         if (index == split.Length - 1)
-                            items.Add(type);
-                        else
-                            items.Add(null);
-                        
+                            items.Add(id, type);
                         @new = new TreeViewItem(id++, parent.depth + 1, s);
                         parent.AddChild(@new);
                         parent = @new;
@@ -116,25 +109,8 @@ public class TypePickerTreeView : TreeView
 
     public Type GetItemById(int id)
     {
-        if (items.Count > id)
+        if (items.ContainsKey(id))
             return items[id];
-
-        return null;
-    }
-
-    public TreeViewItem Find(TreeViewItem parent, string path)
-    {
-        if (parent.displayName == path.Split('/').Last())
-        {
-            return parent;
-        }
-
-        foreach (TreeViewItem treeViewItem in parent.children)
-        {
-            var item = Find(treeViewItem, path);
-            if (item != null)
-                return item;
-        }
 
         return null;
     }
