@@ -12,12 +12,14 @@ using UnityEngine;
 
 public class CodeGen
 {
-    private static Type[] types = new[] {typeof(float), typeof(bool)};
     public static string path = "Scripts/SO/";
+
+    private static ArchitectureSettings settings;
 
     [MenuItem("Tools/Generate")]
     public static void Generate()
     {
+        settings = AssetDatabase.LoadAssetAtPath<ArchitectureSettings>("Assets/Scripts/Editor/Resources/Settings.asset");
         GenerateNewVariables();
         GenerateNewReferences();
     }
@@ -25,8 +27,9 @@ public class CodeGen
     [MenuItem("Tools/Generate Variables")]
     public static void GenerateNewVariables()
     {
-        foreach (Type type in types)
+        foreach (SerializableSystemType systemType in settings.variableTypes)
         {
+            Type type = systemType.GetType();
             CodeCompileUnit ccu = new CodeCompileUnit();
 
             CodeNamespace codeNamespace = new CodeNamespace("Architecture");
@@ -77,10 +80,9 @@ public class CodeGen
     [MenuItem("Tools/Generate References")]
     public static void GenerateNewReferences()
     {
-        foreach (Type type in types)
+        foreach (SerializableSystemType systemType in settings.variableTypes)
         {
-            if (!types.Contains(type))
-                return;
+            Type type = systemType.GetType();
 
             CodeCompileUnit ccu = new CodeCompileUnit();
 
