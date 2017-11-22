@@ -37,7 +37,7 @@ public class CodeGen
             Type type = systemType.SystemType;
             CodeCompileUnit ccu = new CodeCompileUnit();
 
-            CodeNamespace codeNamespace = new CodeNamespace("Architecture");
+            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
             codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
             codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
             ccu.Namespaces.Add(codeNamespace);
@@ -95,7 +95,7 @@ public class CodeGen
 
             CodeCompileUnit ccu = new CodeCompileUnit();
 
-            CodeNamespace codeNamespace = new CodeNamespace("Architecture");
+            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
             codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
             codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
             ccu.Namespaces.Add(codeNamespace);
@@ -178,7 +178,7 @@ public class CodeGen
 
             CodeCompileUnit ccu = new CodeCompileUnit();
 
-            CodeNamespace codeNamespace = new CodeNamespace("Architecture");
+            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
             codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
             codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
             ccu.Namespaces.Add(codeNamespace);
@@ -210,7 +210,7 @@ public class CodeGen
 
             CodeCompileUnit ccu = new CodeCompileUnit();
 
-            CodeNamespace codeNamespace = new CodeNamespace("Architecture");
+            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
             codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
             codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
             ccu.Namespaces.Add(codeNamespace);

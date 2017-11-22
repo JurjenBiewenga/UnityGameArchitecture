@@ -8,6 +8,7 @@ using UnityEngine;
 public class ArchitectureSettings : ScriptableObject
 {
     public string sourceGenerationPath = "Scripts/SO/";
+    public string namespaceName = "Architecture";
     
     public SerializableSystemType[] variableTypes;
     public SerializableSystemType[] setTypes;
