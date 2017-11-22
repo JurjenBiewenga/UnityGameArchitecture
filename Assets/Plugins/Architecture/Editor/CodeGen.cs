@@ -30,6 +30,9 @@ public class CodeGen
     {
         foreach (SerializableSystemType systemType in settings.variableTypes)
         {
+            if(systemType == null)
+                continue;
+            
             Type type = systemType.SystemType;
             CodeCompileUnit ccu = new CodeCompileUnit();
 
@@ -84,6 +87,9 @@ public class CodeGen
     {
         foreach (SerializableSystemType systemType in settings.variableTypes)
         {
+            if(systemType == null)
+                continue;
+            
             Type type = systemType.SystemType;
 
             CodeCompileUnit ccu = new CodeCompileUnit();
@@ -164,6 +170,9 @@ public class CodeGen
     {
         foreach (SerializableSystemType systemType in settings.variableTypes)
         {
+            if(systemType == null)
+                continue;
+            
             Type type = systemType.SystemType;
 
             CodeCompileUnit ccu = new CodeCompileUnit();
