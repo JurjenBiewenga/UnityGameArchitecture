@@ -10,279 +10,362 @@ using Microsoft.CSharp;
 using UnityEditor;
 using UnityEngine;
 
-public class CodeGen
+namespace Architecture
 {
-    public static string path = "Scripts/SO/";
-
-    private static ArchitectureSettings settings;
-
-    [MenuItem("Tools/Generate")]
-    public static void Generate()
+    public class CodeGen
     {
-        settings = ArchitectureSettings.GetSettings();
-        GenerateNewVariables();
-        GenerateNewReferences();
-        GenerateReferenceDrawers();
-        GenerateRuntimeSets();
-    }
+        private static ArchitectureSettings settings;
 
-    [MenuItem("Tools/Generate Variables")]
-    public static void GenerateNewVariables()
-    {
-        foreach (SerializableSystemType systemType in settings.variableTypes)
+        [MenuItem("Tools/Generate")]
+        public static void Generate()
         {
-            if(systemType == null)
-                continue;
-            
-            Type type = systemType.SystemType;
-            CodeCompileUnit ccu = new CodeCompileUnit();
-
-            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
-            codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
-            codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
-            ccu.Namespaces.Add(codeNamespace);
-
-            string typeName = GetTypeName(type) + "Variable";
-            CodeTypeDeclaration codeType = new CodeTypeDeclaration(typeName);
-
-            codeType.BaseTypes.Add(typeof(ScriptableObject));
-            codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
-
-            CodeMemberProperty property = new CodeMemberProperty();
-            property.HasGet = true;
-            property.HasSet = true;
-            property.Type = new CodeTypeReference(type);
-            property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            property.Name = "CurrentValue";
-
-            CodeMemberField valueField = new CodeMemberField(type, "Value");
-            CodeMemberField defaultValueField = new CodeMemberField(type, "DefaultValue");
-            defaultValueField.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(SerializeField))));
-            valueField.Attributes = MemberAttributes.Private;
-
-            CodeFieldReferenceExpression valueReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "Value");
-
-            property.GetStatements.Add(new CodeMethodReturnStatement(valueReference));
-            property.SetStatements.Add(new CodeAssignStatement(valueReference, new CodeSnippetExpression("value")));
-
-            CodeMemberMethod onEnableMethod = new CodeMemberMethod();
-            onEnableMethod.Name = "OnEnable";
-            onEnableMethod.Attributes = MemberAttributes.Private;
-            CodeAssignStatement cs1 =
-                new CodeAssignStatement(valueReference, new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "DefaultValue"));
-            onEnableMethod.Statements.Add(cs1);
-
-            codeType.Members.Add(property);
-            codeType.Members.Add(defaultValueField);
-            codeType.Members.Add(valueField);
-            codeType.Members.Add(onEnableMethod);
-
-            codeNamespace.Types.Add(codeType);
-
-            WriteToFile(typeName, ccu);
+            settings = ArchitectureSettings.GetSettings();
+            GenerateNewVariables();
+            GenerateNewReferences();
+            GenerateReferenceDrawers();
+            GenerateVariableDrawers();
+            GenerateRuntimeSets();
+            GenerateStaticSets();
         }
-    }
 
-    [MenuItem("Tools/Generate References")]
-    public static void GenerateNewReferences()
-    {
-        foreach (SerializableSystemType systemType in settings.variableTypes)
+        [MenuItem("Tools/Generate Variables")]
+        public static void GenerateNewVariables()
         {
-            if(systemType == null)
-                continue;
-            
-            Type type = systemType.SystemType;
+            foreach (SerializableSystemType systemType in settings.variableTypes)
+            {
+                if (systemType == null)
+                    continue;
 
-            CodeCompileUnit ccu = new CodeCompileUnit();
+                Type type = systemType.SystemType;
+                CodeCompileUnit ccu = new CodeCompileUnit();
 
-            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
-            codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
-            codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
-            ccu.Namespaces.Add(codeNamespace);
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
 
-            string referenceName = GetTypeName(type) + "Reference";
-            string variableName = GetTypeName(type) + "Variable";
-            CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceName);
+                string typeName = GetTypeName(type) + "Variable";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(typeName);
 
-            codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(SerializableAttribute))));
+                codeType.BaseTypes.Add(typeof(ScriptableObject));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
 
-            CodeMemberProperty property = new CodeMemberProperty();
-            property.HasGet = true;
-            property.HasSet = true;
-            property.Type = new CodeTypeReference(type);
-            property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            property.Name = "Value";
+                CodeMemberProperty property = new CodeMemberProperty();
+                property.HasGet = true;
+                property.HasSet = true;
+                property.Type = new CodeTypeReference(type);
+                property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+                property.Name = "CurrentValue";
 
-            CodeMemberField useConstant = new CodeMemberField(typeof(bool), "UseConstant");
-            CodeMemberField constantValue = new CodeMemberField(type, "ConstantValue");
-            CodeMemberField variableValue = new CodeMemberField(variableName, "Variable");
-            useConstant.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            constantValue.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            variableValue.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+                CodeMemberField valueField = new CodeMemberField(type, "Value");
+                CodeMemberField defaultValueField = new CodeMemberField(type, "DefaultValue");
+                CodeMemberField persistentField = new CodeMemberField(typeof(bool), "Persistent");
 
-            CodeFieldReferenceExpression useConstantReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "UseConstant");
-            CodeFieldReferenceExpression constantValueReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "ConstantValue");
-            CodeFieldReferenceExpression variableValueReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "Variable.CurrentValue");
+                defaultValueField.Attributes = MemberAttributes.Private;
+                defaultValueField.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(SerializeField))));
 
-            CodeConditionStatement getBody = new CodeConditionStatement(useConstantReference,
-                                                                        new CodeStatement[1] {new CodeMethodReturnStatement(constantValueReference)},
-                                                                        new CodeStatement[1] {new CodeMethodReturnStatement(variableValueReference)});
-            property.GetStatements.Add(getBody);
-            CodeConditionStatement setBody = new CodeConditionStatement(useConstantReference,
-                                                                        new CodeStatement[1]
-                                                                        {
-                                                                            new CodeAssignStatement(constantValueReference, new CodeSnippetExpression("value"))
-                                                                        },
-                                                                        new CodeStatement[1]
-                                                                        {
-                                                                            new CodeAssignStatement(variableValueReference, new CodeSnippetExpression("value"))
-                                                                        });
-            property.SetStatements.Add(setBody);
+                valueField.Attributes = MemberAttributes.Private;
+                valueField.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(SerializeField))));
+                
+                persistentField.Attributes = MemberAttributes.Public | MemberAttributes.Final;
 
-            CodeConstructor emptyConstructor = new CodeConstructor();
-            emptyConstructor.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            CodeConstructor typeConstructor = new CodeConstructor();
-            typeConstructor.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            typeConstructor.Parameters.Add(new CodeParameterDeclarationExpression(type, "value"));
-            typeConstructor.Statements.Add(new CodeAssignStatement(constantValueReference, new CodeSnippetExpression("value")));
-            typeConstructor.Statements.Add(new CodeAssignStatement(useConstantReference, new CodeSnippetExpression("true")));
+                CodeFieldReferenceExpression valueReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "Value");
 
-            CodeSnippetTypeMember implicitMethod = new CodeSnippetTypeMember(String.Format(@"public static implicit operator {0}({1} reference)
+                property.GetStatements.Add(new CodeMethodReturnStatement(valueReference));
+                property.SetStatements.Add(new CodeAssignStatement(valueReference, new CodeSnippetExpression("value")));
+
+                CodeSnippetExpression negatedPersistentReference = new CodeSnippetExpression("!this.Persistent");
+
+                CodeMemberMethod onEnableMethod = new CodeMemberMethod();
+                onEnableMethod.Name = "OnEnable";
+                onEnableMethod.Attributes = MemberAttributes.Private;
+                CodeAssignStatement cs1 =
+                    new CodeAssignStatement(valueReference, new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "DefaultValue"));
+                CodeConditionStatement condition = new CodeConditionStatement(negatedPersistentReference, cs1);
+                onEnableMethod.Statements.Add(condition);
+
+                codeType.Members.Add(property);
+                codeType.Members.Add(persistentField);
+                codeType.Members.Add(defaultValueField);
+                codeType.Members.Add(valueField);
+                codeType.Members.Add(onEnableMethod);
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile(typeName, ccu);
+            }
+        }
+
+        [MenuItem("Tools/Generate References")]
+        public static void GenerateNewReferences()
+        {
+            foreach (SerializableSystemType systemType in settings.variableTypes)
+            {
+                if (systemType == null)
+                    continue;
+
+                Type type = systemType.SystemType;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+
+                string referenceName = GetTypeName(type) + "Reference";
+                string variableName = GetTypeName(type) + "Variable";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceName);
+
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(SerializableAttribute))));
+
+                CodeMemberProperty property = new CodeMemberProperty();
+                property.HasGet = true;
+                property.HasSet = true;
+                property.Type = new CodeTypeReference(type);
+                property.Attributes = MemberAttributes.Public | MemberAttributes.Final | MemberAttributes.New;
+                property.Name = "Value";
+
+                CodeMemberField constantValue = new CodeMemberField(type, "ConstantValue");
+                CodeMemberField variableValue = new CodeMemberField(variableName, "Variable");
+                CodeMemberField useConstantValue = new CodeMemberField(typeof(bool), "UseConstant");
+                constantValue.Attributes = MemberAttributes.Private;
+                variableValue.Attributes = MemberAttributes.Private;
+                useConstantValue.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+
+                CodeFieldReferenceExpression useConstantReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "UseConstant");
+                CodeFieldReferenceExpression constantValueReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "ConstantValue");
+                CodeFieldReferenceExpression variableValueReference =
+                    new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "Variable.CurrentValue");
+
+                CodeConditionStatement getBody = new CodeConditionStatement(useConstantReference,
+                                                                            new CodeStatement[1] {new CodeMethodReturnStatement(constantValueReference)},
+                                                                            new CodeStatement[1] {new CodeMethodReturnStatement(variableValueReference)});
+                property.GetStatements.Add(getBody);
+                CodeConditionStatement setBody = new CodeConditionStatement(useConstantReference,
+                                                                            new CodeStatement[1]
+                                                                            {
+                                                                                new CodeAssignStatement(constantValueReference,
+                                                                                                        new CodeSnippetExpression("value"))
+                                                                            },
+                                                                            new CodeStatement[1]
+                                                                            {
+                                                                                new CodeAssignStatement(variableValueReference,
+                                                                                                        new CodeSnippetExpression("value"))
+                                                                            });
+                property.SetStatements.Add(setBody);
+
+                CodeConstructor emptyConstructor = new CodeConstructor();
+                emptyConstructor.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+                CodeConstructor typeConstructor = new CodeConstructor();
+                typeConstructor.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+                typeConstructor.Parameters.Add(new CodeParameterDeclarationExpression(type, "value"));
+                typeConstructor.Statements.Add(new CodeAssignStatement(constantValueReference, new CodeSnippetExpression("value")));
+                typeConstructor.Statements.Add(new CodeAssignStatement(useConstantReference, new CodeSnippetExpression("true")));
+
+                CodeSnippetTypeMember implicitMethod = new CodeSnippetTypeMember(String.Format(@"public static implicit operator {0}({1} reference)
         {{
+            if(reference.UseConstant)
+            {{
+                return reference.ConstantValue;
+            }}
             return reference.Value;
         }}
 ", GetTypeName(type).ToLower(), referenceName));
 
-            codeType.Members.Add(emptyConstructor);
-            codeType.Members.Add(typeConstructor);
-            codeType.Members.Add(property);
-            codeType.Members.Add(constantValue);
-            codeType.Members.Add(useConstant);
-            codeType.Members.Add(variableValue);
-            codeType.Members.Add(implicitMethod);
+                codeType.Members.Add(emptyConstructor);
+                codeType.Members.Add(typeConstructor);
+                codeType.Members.Add(property);
+                codeType.Members.Add(constantValue);
+                codeType.Members.Add(variableValue);
+                codeType.Members.Add(useConstantValue);
+                codeType.Members.Add(implicitMethod);
 
-            codeNamespace.Types.Add(codeType);
+                codeNamespace.Types.Add(codeType);
 
-            WriteToFile(referenceName, ccu);
-        }
-    }
-
-    public static void GenerateReferenceDrawers()
-    {
-        foreach (SerializableSystemType systemType in settings.variableTypes)
-        {
-            if(systemType == null)
-                continue;
-            
-            Type type = systemType.SystemType;
-
-            CodeCompileUnit ccu = new CodeCompileUnit();
-
-            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
-            codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
-            codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
-            ccu.Namespaces.Add(codeNamespace);
-
-            string referenceName = GetTypeName(type) + "Reference";
-            string referenceDrawerName = GetTypeName(type) + "ReferenceDrawer";
-            string variableName = GetTypeName(type) + "Variable";
-            CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceDrawerName);
-
-            codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomPropertyDrawer)),
-                                                                       new CodeAttributeArgument(new CodeTypeOfExpression(referenceName))));
-
-            codeType.BaseTypes.Add(typeof(ReferenceDrawer));
-            
-            codeNamespace.Types.Add(codeType);
-
-            WriteToFile("Editor/" + referenceDrawerName, ccu);
-        }
-    }
-
-    public static void GenerateRuntimeSets()
-    {
-        foreach (SerializableSystemType systemType in settings.setTypes)
-        {
-            if(systemType == null)
-                continue;
-
-            Type type = systemType.SystemType;
-
-            CodeCompileUnit ccu = new CodeCompileUnit();
-
-            CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
-            codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
-            codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
-            ccu.Namespaces.Add(codeNamespace);
-
-            string runtimeSetName = GetTypeName(type) + "RuntimeSet";
-            CodeTypeDeclaration codeType = new CodeTypeDeclaration(runtimeSetName);
-            
-            var listType = new CodeTypeReference(typeof(RuntimeSet<>));
-            listType.TypeArguments.Add(type);
-            
-            codeType.BaseTypes.Add(listType);
-            codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
-            
-            codeNamespace.Types.Add(codeType);
-
-            WriteToFile(runtimeSetName, ccu);
-        }
-    }
-
-    public static void WriteToFile(string fileName, CodeCompileUnit ccu)
-    {
-        CSharpCodeProvider provider = new CSharpCodeProvider();
-
-        if (!fileName.EndsWith(".cs"))
-        {
-            if (provider.FileExtension.StartsWith("."))
-            {
-                fileName += provider.FileExtension;
-            }
-            else
-            {
-                fileName += "." + provider.FileExtension;
+                WriteToFile(referenceName, ccu);
             }
         }
 
-        string directory = Path.Combine(Application.dataPath, CodeGen.path);
-        string path = Path.Combine(directory, fileName);
-
-        string finalDirectory = Path.GetDirectoryName(path);
-        
-        if (!Directory.Exists(finalDirectory))
+        public static void GenerateReferenceDrawers()
         {
-            Debug.Log(String.Format("Creating directory {0}", finalDirectory));
-            Directory.CreateDirectory(finalDirectory);
+            foreach (SerializableSystemType systemType in settings.variableTypes)
+            {
+                if (systemType == null)
+                    continue;
+
+                Type type = systemType.SystemType;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+
+                string referenceName = GetTypeName(type) + "Reference";
+                string referenceDrawerName = GetTypeName(type) + "ReferenceDrawer";
+                string variableName = GetTypeName(type) + "Variable";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceDrawerName);
+
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomPropertyDrawer)),
+                                                                           new CodeAttributeArgument(new CodeTypeOfExpression(referenceName))));
+
+                codeType.BaseTypes.Add(typeof(ReferenceDrawer));
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile("Editor/" + referenceDrawerName, ccu);
+            }
         }
 
-        using (StreamWriter sw = new StreamWriter(path, false))
+        public static void GenerateVariableDrawers()
         {
-            IndentedTextWriter tw = new IndentedTextWriter(sw, "    ");
+            foreach (SerializableSystemType systemType in settings.variableTypes)
+            {
+                if (systemType == null)
+                    continue;
 
-            provider.GenerateCodeFromCompileUnit(ccu, tw,
-                                                 new CodeGeneratorOptions());
+                Type type = systemType.SystemType;
 
-            tw.Close();
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+
+                string variableName = GetTypeName(type) + "Variable";
+                string variableDrawerName = GetTypeName(type) + "VariableDrawer";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(variableDrawerName);
+
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomEditor)),
+                                                                           new CodeAttributeArgument(new CodeTypeOfExpression(variableName))));
+
+                codeType.BaseTypes.Add(typeof(VariableDrawer));
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile("Editor/" + variableDrawerName, ccu);
+            }
         }
-    }
 
-    public static string GetTypeName(Type type)
-    {
-        if (type == typeof(float))
+        public static void GenerateRuntimeSets()
         {
-            return "Float";
-        }
-        else if (type == typeof(int))
-        {
-            return "Int";
-        }
-        else if (type == typeof(bool))
-        {
-            return "Bool";
+            foreach (SerializableSystemType systemType in settings.runtimeSetTypes)
+            {
+                if (systemType == null)
+                    continue;
+
+                Type type = systemType.SystemType;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+
+                string runtimeSetName = GetTypeName(type) + "RuntimeSet";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(runtimeSetName);
+
+                var listType = new CodeTypeReference(typeof(RuntimeSet<>));
+                listType.TypeArguments.Add(type);
+
+                codeType.BaseTypes.Add(listType);
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile(runtimeSetName, ccu);
+            }
         }
 
-        return type.Name;
+        public static void GenerateStaticSets()
+        {
+            foreach (SerializableSystemType systemType in settings.staticSetTypes)
+            {
+                if (systemType == null)
+                    continue;
+
+                Type type = systemType.SystemType;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+
+                string staticSetName = GetTypeName(type) + "StaticSet";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(staticSetName);
+
+                var listType = new CodeTypeReference(typeof(StaticSet<>));
+                listType.TypeArguments.Add(type);
+
+                codeType.BaseTypes.Add(listType);
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile(staticSetName, ccu);
+            }
+        }
+
+        public static void WriteToFile(string fileName, CodeCompileUnit ccu)
+        {
+            CSharpCodeProvider provider = new CSharpCodeProvider();
+
+            if (!fileName.EndsWith(".cs"))
+            {
+                if (provider.FileExtension.StartsWith("."))
+                {
+                    fileName += provider.FileExtension;
+                }
+                else
+                {
+                    fileName += "." + provider.FileExtension;
+                }
+            }
+
+            string directory = Path.Combine(Application.dataPath, settings.sourceGenerationPath);
+            string path = Path.Combine(directory, fileName);
+
+            string finalDirectory = Path.GetDirectoryName(path);
+
+            if (!Directory.Exists(finalDirectory))
+            {
+                Debug.Log(String.Format("Creating directory {0}", finalDirectory));
+                Directory.CreateDirectory(finalDirectory);
+            }
+
+            using (StreamWriter sw = new StreamWriter(path, false))
+            {
+                IndentedTextWriter tw = new IndentedTextWriter(sw, "    ");
+
+                provider.GenerateCodeFromCompileUnit(ccu, tw,
+                                                     new CodeGeneratorOptions());
+
+                tw.Close();
+            }
+        }
+
+        public static string GetTypeName(Type type)
+        {
+            if (type == typeof(float))
+            {
+                return "Float";
+            }
+            else if (type == typeof(int))
+            {
+                return "Int";
+            }
+            else if (type == typeof(bool))
+            {
+                return "Bool";
+            }
+
+            return type.Name;
+        }
     }
 }

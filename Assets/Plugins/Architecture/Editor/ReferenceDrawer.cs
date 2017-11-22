@@ -5,7 +5,6 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[CustomPropertyDrawer(typeof(ReferenceDrawer))]
 public class ReferenceDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

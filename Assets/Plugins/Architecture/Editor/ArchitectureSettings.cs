@@ -11,7 +11,8 @@ public class ArchitectureSettings : ScriptableObject
     public string namespaceName = "Architecture";
     
     public SerializableSystemType[] variableTypes;
-    public SerializableSystemType[] setTypes;
+    public SerializableSystemType[] runtimeSetTypes;
+    public SerializableSystemType[] staticSetTypes;
     public SerializableSystemType[] eventTypes;
 
     public static string settingsPath = "Assets/Plugins/Architecture/Editor/Resources/Settings.asset";
