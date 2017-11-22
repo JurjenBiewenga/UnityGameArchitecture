@@ -23,6 +23,7 @@ public class CodeGen
         GenerateNewVariables();
         GenerateNewReferences();
         GenerateReferenceDrawers();
+        GenerateRuntimeSets();
     }
 
     [MenuItem("Tools/Generate Variables")]
@@ -198,6 +199,37 @@ public class CodeGen
         }
     }
 
+    public static void GenerateRuntimeSets()
+    {
+        foreach (SerializableSystemType systemType in settings.setTypes)
+        {
+            if(systemType == null)
+                continue;
+
+            Type type = systemType.SystemType;
+
+            CodeCompileUnit ccu = new CodeCompileUnit();
+
+            CodeNamespace codeNamespace = new CodeNamespace("Architecture");
+            codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+            codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+            ccu.Namespaces.Add(codeNamespace);
+
+            string runtimeSetName = GetTypeName(type) + "RuntimeSet";
+            CodeTypeDeclaration codeType = new CodeTypeDeclaration(runtimeSetName);
+            
+            var listType = new CodeTypeReference(typeof(RuntimeSet<>));
+            listType.TypeArguments.Add(type);
+            
+            codeType.BaseTypes.Add(listType);
+            codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+            
+            codeNamespace.Types.Add(codeType);
+
+            WriteToFile(runtimeSetName, ccu);
+        }
+    }
+
     public static void WriteToFile(string fileName, CodeCompileUnit ccu)
     {
         CSharpCodeProvider provider = new CSharpCodeProvider();
@@ -229,11 +261,9 @@ public class CodeGen
         {
             IndentedTextWriter tw = new IndentedTextWriter(sw, "    ");
 
-            // Generate source code using the code provider.
             provider.GenerateCodeFromCompileUnit(ccu, tw,
                                                  new CodeGeneratorOptions());
 
-            // Close the output file.
             tw.Close();
         }
     }
