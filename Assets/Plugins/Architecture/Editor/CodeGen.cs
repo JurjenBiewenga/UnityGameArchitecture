@@ -19,9 +19,10 @@ public class CodeGen
     [MenuItem("Tools/Generate")]
     public static void Generate()
     {
-        settings = AssetDatabase.LoadAssetAtPath<ArchitectureSettings>("Assets/Scripts/Editor/Resources/Settings.asset");
+        settings = ArchitectureSettings.GetSettings();
         GenerateNewVariables();
         GenerateNewReferences();
+        GenerateReferenceDrawers();
     }
 
     [MenuItem("Tools/Generate Variables")]
@@ -29,7 +30,7 @@ public class CodeGen
     {
         foreach (SerializableSystemType systemType in settings.variableTypes)
         {
-            Type type = systemType.GetType();
+            Type type = systemType.SystemType;
             CodeCompileUnit ccu = new CodeCompileUnit();
 
             CodeNamespace codeNamespace = new CodeNamespace("Architecture");
@@ -52,6 +53,7 @@ public class CodeGen
 
             CodeMemberField valueField = new CodeMemberField(type, "Value");
             CodeMemberField defaultValueField = new CodeMemberField(type, "DefaultValue");
+            defaultValueField.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(SerializeField))));
             valueField.Attributes = MemberAttributes.Private;
 
             CodeFieldReferenceExpression valueReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "Value");
@@ -82,7 +84,7 @@ public class CodeGen
     {
         foreach (SerializableSystemType systemType in settings.variableTypes)
         {
-            Type type = systemType.GetType();
+            Type type = systemType.SystemType;
 
             CodeCompileUnit ccu = new CodeCompileUnit();
 
@@ -137,7 +139,7 @@ public class CodeGen
             typeConstructor.Parameters.Add(new CodeParameterDeclarationExpression(type, "value"));
             typeConstructor.Statements.Add(new CodeAssignStatement(constantValueReference, new CodeSnippetExpression("value")));
             typeConstructor.Statements.Add(new CodeAssignStatement(useConstantReference, new CodeSnippetExpression("true")));
-            
+
             CodeSnippetTypeMember implicitMethod = new CodeSnippetTypeMember(String.Format(@"public static implicit operator {0}({1} reference)
         {{
             return reference.Value;
@@ -155,6 +157,35 @@ public class CodeGen
             codeNamespace.Types.Add(codeType);
 
             WriteToFile(referenceName, ccu);
+        }
+    }
+
+    public static void GenerateReferenceDrawers()
+    {
+        foreach (SerializableSystemType systemType in settings.variableTypes)
+        {
+            Type type = systemType.SystemType;
+
+            CodeCompileUnit ccu = new CodeCompileUnit();
+
+            CodeNamespace codeNamespace = new CodeNamespace("Architecture");
+            codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+            codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+            ccu.Namespaces.Add(codeNamespace);
+
+            string referenceName = GetTypeName(type) + "Reference";
+            string referenceDrawerName = GetTypeName(type) + "ReferenceDrawer";
+            string variableName = GetTypeName(type) + "Variable";
+            CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceDrawerName);
+
+            codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomPropertyDrawer)),
+                                                                       new CodeAttributeArgument(new CodeTypeOfExpression(referenceName))));
+
+            codeType.BaseTypes.Add(typeof(ReferenceDrawer));
+            
+            codeNamespace.Types.Add(codeType);
+
+            WriteToFile("Editor/" + referenceDrawerName, ccu);
         }
     }
 
@@ -177,10 +208,12 @@ public class CodeGen
         string directory = Path.Combine(Application.dataPath, CodeGen.path);
         string path = Path.Combine(directory, fileName);
 
-        if (!Directory.Exists(directory))
+        string finalDirectory = Path.GetDirectoryName(path);
+        
+        if (!Directory.Exists(finalDirectory))
         {
-            Debug.Log(String.Format("Directory {0} does not exist", directory));
-            Directory.CreateDirectory(directory);
+            Debug.Log(String.Format("Creating directory {0}", finalDirectory));
+            Directory.CreateDirectory(finalDirectory);
         }
 
         using (StreamWriter sw = new StreamWriter(path, false))

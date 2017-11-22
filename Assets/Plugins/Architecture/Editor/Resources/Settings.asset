@@ -11,6 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b4ae052b836af54c802ac0224fdc6fb, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  variableTypes: []
+  variableTypes:
+  - m_Name: Single
+    m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+      PublicKeyToken=b77a5c561934e089
+    m_AssemblyName: System.Single
   setTypes: []
   eventTypes: []
