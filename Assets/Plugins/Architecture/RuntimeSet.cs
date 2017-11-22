@@ -17,6 +17,11 @@ public abstract class RuntimeSet<T> : ScriptableObject
         return Items.Contains(item);
     }
     
+    public int IndexOf(T item)
+    {
+        return Items.IndexOf(item);
+    }
+    
     public void Remove(T item)
     {
         Items.Remove(item);
