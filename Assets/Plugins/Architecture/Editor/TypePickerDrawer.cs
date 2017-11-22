@@ -19,13 +19,15 @@ namespace Bodybuilder.Editor.Drawers
             switch (e.GetTypeForControl(controlId))
             {
                 default:
+
+                    position = EditorGUI.IndentedRect(position);
                     Rect pos2 = position;
                     pos2.width -= 32;
                     Rect pos3 = position;
                     pos3.x += pos2.width;
                     pos3.width = 15;
                     Rect pos4 = position;
-                    pos4.x += pos3.x;
+                    pos4.x += pos2.width + pos3.width;
                     pos4.width = 15;
 
                     var typeName = property.FindPropertyRelative("m_Name");
