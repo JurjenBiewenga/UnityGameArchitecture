@@ -16,11 +16,18 @@ namespace Architecture
         private Dictionary<int, Type> items = new Dictionary<int, Type>();
         public Action<int> OnItemDoubleClicked;
         public Action<IList<int>> OnSelectionChanged;
+        public Type baseType;
 
         public static Dictionary<Assembly, Type[]> allTypes;
 
         public TypePickerTreeView(TreeViewState state) : base(state)
         {
+            Reload();
+        }
+
+        public TypePickerTreeView(TreeViewState state, Type baseType) : base(state)
+        {
+            this.baseType = baseType;
             Reload();
         }
 
@@ -56,13 +63,17 @@ namespace Architecture
                 TreeViewItem parent = root;
                 TreeViewItem @new;
                 TreeViewItem @newRoot = new TreeViewItem(id++, parent.depth + 1, keyValuePair.Key.GetName().Name);
-                parent.AddChild(@newRoot);
                 parent = @newRoot;
 
                 for (int i = 0; i < keyValuePair.Value.Length; i++)
                 {
                     parent = newRoot;
                     Type type = keyValuePair.Value[i];
+                    if (baseType != null)
+                    {
+                        if (!baseType.IsAssignableFrom(type))
+                            continue;
+                    }
                     string name = type.ToString();
                     string[] split = name.Split('.');
                     for (int index = 0; index < split.Length; index++)
@@ -94,6 +105,8 @@ namespace Architecture
                         }
                     }
                 }
+                if(@newRoot.hasChildren)
+                    root.AddChild(@newRoot);
             }
 
             return root;

@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace Architecture
 {
-    [CustomPropertyDrawer(typeof(SerializableSystemType))]
+    [CustomPropertyDrawer(typeof(TypePickerAttribute))]
     public class TypePickerDrawer : PropertyDrawer
     {
         int controlId = 0;
@@ -37,7 +37,9 @@ namespace Architecture
 
                     if (GUI.Button(pos3, "s"))
                     {
-                        TypePicker.Show(controlId);
+                        TypePickerAttribute attr = attribute as TypePickerAttribute;
+                        if(attr != null)
+                            TypePicker.Show(controlId, attr.baseType);
                     }
                     
                     if (GUI.Button(pos4, "x"))

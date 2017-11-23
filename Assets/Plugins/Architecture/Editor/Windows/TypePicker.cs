@@ -23,13 +23,12 @@ namespace Architecture
             tree = new TypePickerTreeView(new TreeViewState());
         }
 
-        [MenuItem("Tools/TypePicker")]
-        public static void ShowWindow()
-        {
-            Show(GetControlId());
-        }
-
         public static void Show(int controlId)
+        {
+            Show(controlId, null);
+        }
+        
+        public static void Show(int controlId, Type baseType)
         {
             PropertyInfo prop = Assembly.GetAssembly(typeof(EditorWindow)).GetType("UnityEditor.GUIView")
                                         .GetProperty("current", BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.Public);
@@ -50,7 +49,7 @@ namespace Architecture
 
             picker.position = position;
 
-            picker.tree = new TypePickerTreeView(new TreeViewState());
+            picker.tree = new TypePickerTreeView(new TreeViewState(), baseType);
 
             picker.tree.OnItemDoubleClicked = id =>
                                               {
