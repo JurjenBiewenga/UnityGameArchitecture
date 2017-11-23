@@ -12,14 +12,17 @@ MonoBehaviour:
   m_Name: Settings
   m_EditorClassIdentifier: 
   sourceGenerationPath: Scripts/SO/
+  namespaceName: Architecture
   variableTypes:
   - m_Name: Single
     m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
       PublicKeyToken=b77a5c561934e089
     m_AssemblyName: System.Single
-  setTypes:
-  - m_Name: Single
-    m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
-      PublicKeyToken=b77a5c561934e089
-    m_AssemblyName: System.Single
+  runtimeSetTypes: []
+  staticSetTypes: []
   eventTypes: []
+  singleComponentReferenceTypes:
+  - m_Name: Object
+    m_AssemblyQualifiedName: UnityEngine.Object, UnityEngine, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_AssemblyName: UnityEngine.Object
