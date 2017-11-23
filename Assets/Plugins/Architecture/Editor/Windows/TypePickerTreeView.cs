@@ -9,67 +9,82 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-public class TypePickerTreeView : TreeView
+namespace Architecture
 {
-    private Dictionary<int, Type> items = new Dictionary<int, Type>();
-    public Action<int> OnItemDoubleClicked;
-    public Action<IList<int>> OnSelectionChanged;
-
-    public static Dictionary<Assembly, Type[]> allTypes;
-
-    public TypePickerTreeView(TreeViewState state) : base(state)
+    public class TypePickerTreeView : TreeView
     {
-        Reload();
-    }
+        private Dictionary<int, Type> items = new Dictionary<int, Type>();
+        public Action<int> OnItemDoubleClicked;
+        public Action<IList<int>> OnSelectionChanged;
 
-    public TypePickerTreeView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader)
-    {
-        Reload();
-    }
+        public static Dictionary<Assembly, Type[]> allTypes;
 
-    protected override void SelectionChanged(IList<int> selectedIds)
-    {
-        base.SelectionChanged(selectedIds);
-        if (OnSelectionChanged != null)
-            OnSelectionChanged.Invoke(selectedIds);
-    }
-
-    protected override void DoubleClickedItem(int id)
-    {
-        base.DoubleClickedItem(id);
-        if (OnItemDoubleClicked != null)
-            OnItemDoubleClicked.Invoke(id);
-    }
-
-    protected override TreeViewItem BuildRoot()
-    {
-        if (allTypes == null)
-            PopulateTypes();
-
-        TreeViewItem root = new TreeViewItem {id = 0, depth = -1, displayName = "Root"};
-        int id = 0;
-
-        foreach (KeyValuePair<Assembly, Type[]> keyValuePair in allTypes)
+        public TypePickerTreeView(TreeViewState state) : base(state)
         {
-            TreeViewItem parent = root;
-            TreeViewItem @new;
-            TreeViewItem @newRoot = new TreeViewItem(id++, parent.depth + 1, keyValuePair.Key.GetName().Name);
-            parent.AddChild(@newRoot);
-            parent = @newRoot;
+            Reload();
+        }
 
-            for (int i = 0; i < keyValuePair.Value.Length; i++)
+        public TypePickerTreeView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader)
+        {
+            Reload();
+        }
+
+        protected override void SelectionChanged(IList<int> selectedIds)
+        {
+            base.SelectionChanged(selectedIds);
+            if (OnSelectionChanged != null)
+                OnSelectionChanged.Invoke(selectedIds);
+        }
+
+        protected override void DoubleClickedItem(int id)
+        {
+            base.DoubleClickedItem(id);
+            if (OnItemDoubleClicked != null)
+                OnItemDoubleClicked.Invoke(id);
+        }
+
+        protected override TreeViewItem BuildRoot()
+        {
+            if (allTypes == null)
+                PopulateTypes();
+
+            TreeViewItem root = new TreeViewItem {id = 0, depth = -1, displayName = "Root"};
+            int id = 0;
+
+            foreach (KeyValuePair<Assembly, Type[]> keyValuePair in allTypes)
             {
-                parent = newRoot;
-                Type type = keyValuePair.Value[i];
-                string name = type.ToString();
-                string[] split = name.Split('.');
-                for (int index = 0; index < split.Length; index++)
+                TreeViewItem parent = root;
+                TreeViewItem @new;
+                TreeViewItem @newRoot = new TreeViewItem(id++, parent.depth + 1, keyValuePair.Key.GetName().Name);
+                parent.AddChild(@newRoot);
+                parent = @newRoot;
+
+                for (int i = 0; i < keyValuePair.Value.Length; i++)
                 {
-                    string s = split[index];
-                    if (parent.children != null)
+                    parent = newRoot;
+                    Type type = keyValuePair.Value[i];
+                    string name = type.ToString();
+                    string[] split = name.Split('.');
+                    for (int index = 0; index < split.Length; index++)
                     {
-                        TreeViewItem item = parent.children.FirstOrDefault(x => x.displayName == s);
-                        if (item == null)
+                        string s = split[index];
+                        if (parent.children != null)
+                        {
+                            TreeViewItem item = parent.children.FirstOrDefault(x => x.displayName == s);
+                            if (item == null)
+                            {
+                                if (index == split.Length - 1)
+                                    items.Add(id, type);
+                                @new = new TreeViewItem(id++, parent.depth + 1, s);
+                                parent.AddChild(@new);
+                                parent = @new;
+                            }
+                            else
+                            {
+                                parent = item;
+                            }
+                        }
+                        else
                         {
                             if (index == split.Length - 1)
                                 items.Add(id, type);
@@ -77,41 +92,29 @@ public class TypePickerTreeView : TreeView
                             parent.AddChild(@new);
                             parent = @new;
                         }
-                        else
-                        {
-                            parent = item;
-                        }
-                    }
-                    else
-                    {
-                        if (index == split.Length - 1)
-                            items.Add(id, type);
-                        @new = new TreeViewItem(id++, parent.depth + 1, s);
-                        parent.AddChild(@new);
-                        parent = @new;
                     }
                 }
             }
+
+            return root;
         }
 
-        return root;
-    }
-
-    public static void PopulateTypes()
-    {
-        allTypes = new Dictionary<Assembly, Type[]>();
-        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        foreach (Assembly assembly in assemblies)
+        public static void PopulateTypes()
         {
-            allTypes.Add(assembly, assembly.GetTypes());
+            allTypes = new Dictionary<Assembly, Type[]>();
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly assembly in assemblies)
+            {
+                allTypes.Add(assembly, assembly.GetTypes());
+            }
         }
-    }
 
-    public Type GetItemById(int id)
-    {
-        if (items.ContainsKey(id))
-            return items[id];
+        public Type GetItemById(int id)
+        {
+            if (items.ContainsKey(id))
+                return items[id];
 
-        return null;
+            return null;
+        }
     }
 }

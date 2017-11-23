@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Bodybuilder.Editor.Drawers
+namespace Architecture
 {
     [CustomPropertyDrawer(typeof(SerializableSystemType))]
     public class TypePickerDrawer : PropertyDrawer

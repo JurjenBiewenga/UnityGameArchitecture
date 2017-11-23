@@ -123,7 +123,7 @@ namespace Architecture
                 property.HasGet = true;
                 property.HasSet = true;
                 property.Type = new CodeTypeReference(type);
-                property.Attributes = MemberAttributes.Public | MemberAttributes.Final | MemberAttributes.New;
+                property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
                 property.Name = "Value";
 
                 CodeMemberField constantValue = new CodeMemberField(type, "ConstantValue");
@@ -205,7 +205,6 @@ namespace Architecture
 
                 string referenceName = GetTypeName(type) + "Reference";
                 string referenceDrawerName = GetTypeName(type) + "ReferenceDrawer";
-                string variableName = GetTypeName(type) + "Variable";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceDrawerName);
 
                 codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomPropertyDrawer)),
