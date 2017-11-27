@@ -30,7 +30,30 @@ namespace Architecture
             if (useConstantProperty.boolValue)
                 EditorGUI.PropertyField(position, constantProperty, new GUIContent(property.displayName));
             else
-                EditorGUI.PropertyField(position, variableProperty, new GUIContent(property.displayName));
+            {
+                Rect pos1 = new Rect(position.x, position.y, (position.width + EditorGUIUtility.labelWidth) /2, position.height);
+                Rect pos2 = new Rect(position.x + pos1.width, position.y, position.width - pos1.width, position.height);
+                if (variableProperty.objectReferenceValue != null)
+                {
+                    EditorGUI.PropertyField(pos1, variableProperty, new GUIContent(property.displayName));
+                    SerializedObject variable = new SerializedObject(variableProperty.objectReferenceValue);
+                    SerializedProperty persistentProperty = variable.FindProperty("Persistent");
+                    SerializedProperty valueProperty = variable.FindProperty("Value");
+                    SerializedProperty defaultValueProperty = variable.FindProperty("DefaultValue");
+                    if (persistentProperty.boolValue)
+                    {
+                        EditorGUI.PropertyField(pos2, valueProperty, new GUIContent());
+                    }
+                    else
+                    {
+                        EditorGUI.PropertyField(pos2, defaultValueProperty, new GUIContent());
+                    }
+                }
+                else
+                {
+                    EditorGUI.PropertyField(position, variableProperty, new GUIContent(property.displayName));
+                }
+            }
         }
 
         public static string GetPropertyType(SerializedProperty property)

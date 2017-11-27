@@ -1,9 +1,14 @@
-﻿namespace Architecture
+﻿using System;
+using UnityEngine;
+
+namespace Architecture
 {
     public abstract class Reference<T, X> where T : Variable<X>
     {
+        [SerializeField]
         protected X ConstantValue;
         
+        [SerializeField]
         protected T Variable;
         
         public bool UseConstant;
