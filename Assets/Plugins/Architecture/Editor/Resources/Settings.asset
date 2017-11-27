@@ -20,7 +20,55 @@ MonoBehaviour:
     m_AssemblyName: System.Single
   runtimeSetTypes: []
   staticSetTypes: []
-  eventTypes: []
+  eventTypes:
+  - name: TestA
+    parameters:
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+  - name: TestB
+    parameters:
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+  - name: TestC
+    parameters:
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+  - name: TestD
+    parameters:
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
+    - m_Name: Single
+      m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      m_AssemblyName: System.Single
   singleComponentReferenceTypes:
   - m_Name: Object
     m_AssemblyQualifiedName: UnityEngine.Object, UnityEngine, Version=0.0.0.0, Culture=neutral,

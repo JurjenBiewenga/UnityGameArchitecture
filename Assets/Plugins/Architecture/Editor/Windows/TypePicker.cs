@@ -54,7 +54,7 @@ namespace Architecture
             picker.tree.OnItemDoubleClicked = id =>
                                               {
                                                   selectedItems = new Type[1] {picker.tree.GetItemById(id)};
-                                                  Event e = EditorGUIUtility.CommandEvent("TypePickerClosed");
+                                                  UnityEngine.Event e = EditorGUIUtility.CommandEvent("TypePickerClosed");
                                                   if (o != null)
                                                   {
                                                       MethodInfo m = o.GetType().GetMethod("SendEvent",
@@ -76,7 +76,7 @@ namespace Architecture
                                                  }
 
                                                  selectedItems = selectedItems.Where(x => x != null).ToArray();
-                                                 Event e = EditorGUIUtility.CommandEvent("TypePickerSelectionChanged");
+                                                 UnityEngine.Event e = EditorGUIUtility.CommandEvent("TypePickerSelectionChanged");
                                                  if (o != null)
                                                  {
                                                      MethodInfo m = o.GetType().GetMethod("SendEvent",
@@ -128,7 +128,7 @@ namespace Architecture
             searchString = SearchField(r, searchString);
             tree.searchString = searchString;
             tree.OnGUI(new Rect(0, 21, Screen.width, Screen.height - 21));
-            Event e = Event.current;
+            UnityEngine.Event e = UnityEngine.Event.current;
         }
     }
 }

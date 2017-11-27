@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Architecture
 {
-
 	[CustomEditor(typeof(UnityGameEvent))]
 	public class UnityGameEventDrawer : Editor
 	{

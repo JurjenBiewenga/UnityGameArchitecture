@@ -7,25 +7,25 @@ namespace Architecture
 	[CreateAssetMenu]
 	public class UnityGameEvent : ScriptableObject
 	{
-		private List<UnityGameEventListener> Listeners = new List<UnityGameEventListener>();
+		private List<UnityGameEventListener> _listeners = new List<UnityGameEventListener>();
 
 		public void Invoke()
 		{
-			for (var i = Listeners.Count - 1; i >= 0; i--)
+			for (var i = _listeners.Count - 1; i >= 0; i--)
 			{
-				Listeners[i].Invoke();
+				_listeners[i].Invoke();
 			}
 		}
 
 		public void RegisterListener(UnityGameEventListener listener)
 		{
-			if (!Listeners.Contains(listener))
-				Listeners.Add(listener);
+			if (!_listeners.Contains(listener))
+				_listeners.Add(listener);
 		}
 
 		public void RemoveListener(UnityGameEventListener listener)
 		{
-			Listeners.Remove(listener);
+			_listeners.Remove(listener);
 		}
 	}
 }

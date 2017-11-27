@@ -27,6 +27,11 @@ namespace Architecture
             GenerateRuntimeSets();
             GenerateStaticSets();
             GenerateSingleComponentReferences();
+            GenerateEvents();
+            GenerateGameEventListeners();
+            GenerateGameEvents();
+            GenerateEventDrawers();
+            GenerateGameEventDrawers();
         }
 
         public static void GenerateNewVariables()
@@ -98,7 +103,7 @@ namespace Architecture
                 ", GetTypeName(type).ToLower(), referenceName));
 
                 codeType.Members.Add(implicitMethod);
-                
+
                 codeNamespace.Types.Add(codeType);
 
                 WriteToFile(referenceName, ccu);
@@ -257,6 +262,258 @@ namespace Architecture
                 codeNamespace.Types.Add(codeType);
 
                 WriteToFile(name, ccu);
+            }
+        }
+
+        public static void GenerateEvents()
+        {
+            foreach (EventSettings eventSettings in settings.eventTypes)
+            {
+                if (eventSettings.parameters.Length == 0)
+                    continue;
+
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+                string name = eventSettings.name;
+                string listenerName = eventSettings.name + "GameEventListener";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(name);
+                CodeTypeReference listType = null;
+                if (eventSettings.parameters.Length == 1)
+                    listType = new CodeTypeReference(typeof(Event<>));
+                else if (eventSettings.parameters.Length == 2)
+                    listType = new CodeTypeReference(typeof(Event<,>));
+                else if (eventSettings.parameters.Length == 3)
+                    listType = new CodeTypeReference(typeof(Event<,,>));
+                else
+                    listType = new CodeTypeReference(typeof(Event<,,,>));
+
+                for (var i = 0; i < eventSettings.parameters.Length; i++)
+                {
+                    listType.TypeArguments.Add(eventSettings.parameters[i].SystemType);
+                }
+
+                codeType.BaseTypes.Add(listType);
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(System.SerializableAttribute))));
+
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile(name, ccu);
+            }
+        }
+
+        public static void GenerateGameEvents()
+        {
+            foreach (EventSettings eventSettings in settings.eventTypes)
+            {
+                if (eventSettings.parameters.Length == 0)
+                    continue;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System.Collections.Generic"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+                string name = eventSettings.name + "GameEvent";
+                string listenerName = eventSettings.name + "GameEventListener";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(name);
+
+                CodeMemberMethod invokeMethod = new CodeMemberMethod();
+                invokeMethod.Name = "Invoke";
+                string paramString = "";
+                CodeVariableReferenceExpression[] parameterReferences= new CodeVariableReferenceExpression[eventSettings.parameters.Length]; 
+                for (var i = 0; i < eventSettings.parameters.Length; i++)
+                {
+                    CodeMemberField testingField = new CodeMemberField(eventSettings.parameters[i].SystemType, "testVariable" + i);
+                    testingField.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(SerializeField))));
+                    codeType.Members.Add(testingField);
+                    parameterReferences[i] = new CodeVariableReferenceExpression("testVariable" + i);
+                    invokeMethod.Parameters.Add(new CodeParameterDeclarationExpression(eventSettings.parameters[i].SystemType, "param" + i));
+                    paramString += "param" + i + ((i != eventSettings.parameters.Length - 1) ? ", " : "");
+                }
+
+                CodeTypeReference listType = new CodeTypeReference(typeof(List<>));
+                listType.TypeArguments.Add(new CodeTypeReference(listenerName));
+
+                CodeMemberField codeMemberField = new CodeMemberField(listType, "_listeners");
+                codeMemberField.InitExpression = new CodeSnippetExpression("new List<" + listenerName + ">()");
+                codeType.Members.Add(codeMemberField);
+                CodeIterationStatement forLoop = new CodeIterationStatement(new CodeAssignStatement(new CodeVariableReferenceExpression("i"),
+                                                                                                    new CodeSnippetExpression("_listeners.Count - 1")),
+                                                                            new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression("i"),
+                                                                                                             CodeBinaryOperatorType.GreaterThanOrEqual,
+                                                                                                             new CodePrimitiveExpression(0)),
+                                                                            new CodeAssignStatement(new CodeVariableReferenceExpression("i"),
+                                                                                                    new CodeBinaryOperatorExpression(
+                                                                                                                                     new
+                                                                                                                                         CodeVariableReferenceExpression("i"),
+                                                                                                                                     CodeBinaryOperatorType
+                                                                                                                                         .Subtract,
+                                                                                                                                     new
+                                                                                                                                         CodePrimitiveExpression(1))),
+                                                                            new CodeSnippetStatement("_listeners[i].Invoke(" + paramString + ");"));
+                invokeMethod.Statements.Add(new CodeVariableDeclarationStatement(typeof(int), "i"));
+                invokeMethod.Statements.Add(forLoop);
+                invokeMethod.Attributes = MemberAttributes.Final | MemberAttributes.Public;
+                
+                CodeMemberMethod invokeWithTestingParams = new CodeMemberMethod();
+                invokeWithTestingParams.Name = "InvokeWithTestingParams";
+                invokeWithTestingParams.Attributes = MemberAttributes.Final | MemberAttributes.Public;
+                invokeWithTestingParams.Statements.Add(new CodeMethodInvokeExpression(new CodeThisReferenceExpression(), "Invoke", parameterReferences));
+
+                CodeMemberMethod addListenerMethod = new CodeMemberMethod();
+                addListenerMethod.Name = "AddListener";
+                addListenerMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(listenerName), "param0"));
+                addListenerMethod.Statements.Add(new CodeSnippetExpression("if(!_listeners.Contains(param0)) _listeners.Add(param0)"));
+                addListenerMethod.Attributes = MemberAttributes.Final | MemberAttributes.Public;
+
+                CodeMemberMethod removeListenerMethod = new CodeMemberMethod();
+                removeListenerMethod.Name = "RemoveListener";
+                removeListenerMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(listenerName), "param0"));
+                removeListenerMethod.Statements.Add(new CodeSnippetExpression("_listeners.Remove(param0)"));
+                removeListenerMethod.Attributes = MemberAttributes.Final | MemberAttributes.Public;
+
+                codeType.Members.Add(invokeMethod);
+                codeType.Members.Add(invokeWithTestingParams);
+                codeType.Members.Add(addListenerMethod);
+                codeType.Members.Add(removeListenerMethod);
+                codeType.BaseTypes.Add(typeof(ScriptableObject));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile(name, ccu);
+            }
+        }
+
+        public static void GenerateGameEventListeners()
+        {
+            foreach (EventSettings eventSettings in settings.eventTypes)
+            {
+                if (eventSettings.parameters.Length == 0)
+                    continue;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+                string eventName = eventSettings.name + "GameEvent";
+                string listenerName = eventSettings.name + "GameEventListener";
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(listenerName);
+                codeType.BaseTypes.Add(typeof(MonoBehaviour));
+
+                CodeTypeReference listType = null;
+                if (eventSettings.parameters.Length == 1)
+                    listType = new CodeTypeReference(typeof(Event<>));
+                else if (eventSettings.parameters.Length == 2)
+                    listType = new CodeTypeReference(typeof(Event<,>));
+                else if (eventSettings.parameters.Length == 3)
+                    listType = new CodeTypeReference(typeof(Event<,,>));
+                else
+                    listType = new CodeTypeReference(typeof(Event<,,,>));
+
+                CodeMemberMethod invokeMethod = new CodeMemberMethod();
+                invokeMethod.Name = "Invoke";
+                string paramString = "";
+                for (var i = 0; i < eventSettings.parameters.Length; i++)
+                {
+                    listType.TypeArguments.Add(eventSettings.parameters[i].SystemType);
+                    invokeMethod.Parameters.Add(new CodeParameterDeclarationExpression(eventSettings.parameters[i].SystemType, "param" + i));
+                    paramString += "param" + i + ((i != eventSettings.parameters.Length - 1) ? ", " : "");
+                }
+
+                invokeMethod.Statements.Add(new CodeSnippetStatement("Response.Invoke(" + paramString + ");"));
+                invokeMethod.Attributes = MemberAttributes.Final | MemberAttributes.Public;
+
+                CodeMemberField gameEventField = new CodeMemberField(new CodeTypeReference(eventName), "GameEvent");
+                CodeMemberField gameEventListenerField = new CodeMemberField(eventSettings.name, "Response");
+                gameEventField.Attributes = MemberAttributes.Final | MemberAttributes.Public;
+                gameEventListenerField.Attributes = MemberAttributes.Final | MemberAttributes.Public;
+
+                CodeMemberMethod onEnable = new CodeMemberMethod();
+                onEnable.Name = "OnEnable";
+                onEnable.Statements.Add(new CodeSnippetExpression("GameEvent.AddListener(this)"));
+
+                CodeMemberMethod onDisable = new CodeMemberMethod();
+                onDisable.Name = "OnDisable";
+                onDisable.Statements.Add(new CodeSnippetExpression("GameEvent.RemoveListener(this)"));
+
+                codeType.Members.Add(onEnable);
+                codeType.Members.Add(onDisable);
+                codeType.Members.Add(invokeMethod);
+                codeType.Members.Add(gameEventListenerField);
+                codeType.Members.Add(gameEventField);
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile(listenerName, ccu);
+            }
+        }
+
+        public static void GenerateEventDrawers()
+        {
+            foreach (EventSettings eventSettings in settings.eventTypes)
+            {
+                if (eventSettings.parameters.Length == 0)
+                    continue;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+
+                string drawerName = eventSettings.name + "EventDrawer";
+                
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(drawerName);
+
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomPropertyDrawer)),
+                                                                           new CodeAttributeArgument(new CodeTypeOfExpression(eventSettings.name))));
+
+                codeType.BaseTypes.Add(typeof(EventDrawer));
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile("Editor/" + drawerName, ccu);
+            }
+        }
+        
+        public static void GenerateGameEventDrawers()
+        {
+            foreach (EventSettings eventSettings in settings.eventTypes)
+            {
+                if (eventSettings.parameters.Length == 0)
+                    continue;
+
+                CodeCompileUnit ccu = new CodeCompileUnit();
+
+                CodeNamespace codeNamespace = new CodeNamespace(settings.namespaceName);
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
+                ccu.Namespaces.Add(codeNamespace);
+
+                string drawerName = eventSettings.name + "GameEventDrawer";
+                string gameEventName = eventSettings.name + "GameEvent";
+                
+                CodeTypeDeclaration codeType = new CodeTypeDeclaration(drawerName);
+
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomEditor)),
+                                                                           new CodeAttributeArgument(new CodeTypeOfExpression(gameEventName))));
+
+                codeType.BaseTypes.Add(typeof(GameEventDrawer));
+
+                codeNamespace.Types.Add(codeType);
+
+                WriteToFile("Editor/" + drawerName, ccu);
             }
         }
 

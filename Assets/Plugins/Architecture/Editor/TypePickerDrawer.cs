@@ -14,7 +14,7 @@ namespace Architecture
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            Event e = Event.current;
+            UnityEngine.Event e = UnityEngine.Event.current;
             controlId = EditorGUIUtility.GetControlID(GetHashCode(), FocusType.Passive);
             switch (e.GetTypeForControl(controlId))
             {
@@ -31,7 +31,7 @@ namespace Architecture
                     pos4.width = 15;
 
                     var typeName = property.FindPropertyRelative("m_Name");
-                    string name = (!string.IsNullOrEmpty(typeName.stringValue) ? typeName.stringValue : "None");
+                    string name = (typeName != null && !string.IsNullOrEmpty(typeName.stringValue) ? typeName.stringValue : "None");
 
                     GUI.Label(pos2, name);
 

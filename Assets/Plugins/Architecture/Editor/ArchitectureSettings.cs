@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -17,8 +18,7 @@ namespace Architecture
         public SerializableSystemType[] runtimeSetTypes;
         [TypePicker]
         public SerializableSystemType[] staticSetTypes;
-        [TypePicker]
-        public SerializableSystemType[] eventTypes;
+        public EventSettings[] eventTypes;
         [TypePicker(typeof(Component))]
         public SerializableSystemType[] singleComponentReferenceTypes;
 
@@ -29,5 +29,13 @@ namespace Architecture
             ArchitectureSettings settings = AssetDatabase.LoadAssetAtPath<ArchitectureSettings>(settingsPath);
             return settings;
         }
+    }
+
+    [Serializable]
+    public class EventSettings
+    {
+        public string name;
+        [TypePicker]
+        public SerializableSystemType[] parameters;
     }
 }
