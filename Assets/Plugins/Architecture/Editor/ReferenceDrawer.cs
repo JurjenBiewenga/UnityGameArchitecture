@@ -31,7 +31,7 @@ namespace Architecture
                 EditorGUI.PropertyField(position, constantProperty, new GUIContent(property.displayName));
             else
             {
-                Rect pos1 = new Rect(position.x, position.y, (position.width + EditorGUIUtility.labelWidth) /2, position.height);
+                Rect pos1 = new Rect(position.x, position.y, (position.width + EditorGUIUtility.labelWidth) / 2, position.height);
                 Rect pos2 = new Rect(position.x + pos1.width, position.y, position.width - pos1.width, position.height);
                 if (variableProperty.objectReferenceValue != null)
                 {
@@ -74,7 +74,18 @@ namespace Architecture
                                                                                             useConstantProperty.serializedObject.ApplyModifiedProperties();
                                                                                         });
             menu.AddSeparator("");
-            string path = string.Format(@"Scriptable Objects\{0}\{1}.asset", property.serializedObject.targetObject.name, property.displayName);
+            GameObject go = (property.serializedObject.targetObject as GameObject);
+            string path = "";
+            if (go.scene.IsValid())
+            {
+                path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", go.scene.name, property.serializedObject.targetObject.name,
+                                            property.displayName);
+            }
+            else
+            {
+                path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", "Prefabs", property.serializedObject.targetObject.name,
+                                            property.displayName);
+            }
 
             menu.AddItem(new GUIContent("Create variable at " + path), false, () =>
                                                                               {
