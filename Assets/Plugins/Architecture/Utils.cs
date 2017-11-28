@@ -15,9 +15,29 @@ namespace Architecture
             {
                 return "Float";
             }
+            else if (type == typeof(short))
+            {
+                return "Short";
+            }
+            else if (type == typeof(ushort))
+            {
+                return "UShort";
+            }
             else if (type == typeof(int))
             {
                 return "Int";
+            }
+            else if (type == typeof(uint))
+            {
+                return "UInt";
+            }
+            else if (type == typeof(ulong))
+            {
+                return "ULong";
+            }
+            else if (type == typeof(long))
+            {
+                return "Long";
             }
             else if (type == typeof(bool))
             {
