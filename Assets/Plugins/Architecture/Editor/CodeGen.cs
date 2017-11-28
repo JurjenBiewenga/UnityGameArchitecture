@@ -163,6 +163,7 @@ namespace Architecture
 
                 codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomEditor)),
                                                                            new CodeAttributeArgument(new CodeTypeOfExpression(variableName))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CanEditMultipleObjects))));
 
                 codeType.BaseTypes.Add(typeof(VariableDrawer));
 
@@ -280,7 +281,6 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
                 string name = eventSettings.name;
-                string listenerName = eventSettings.name + "GameEventListener";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(name);
                 CodeTypeReference listType = null;
                 if (eventSettings.parameters.Length == 1)
@@ -508,6 +508,7 @@ namespace Architecture
 
                 codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomEditor)),
                                                                            new CodeAttributeArgument(new CodeTypeOfExpression(gameEventName))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CanEditMultipleObjects))));
 
                 codeType.BaseTypes.Add(typeof(GameEventDrawer));
 
