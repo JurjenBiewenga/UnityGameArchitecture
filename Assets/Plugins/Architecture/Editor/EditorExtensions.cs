@@ -31,8 +31,8 @@ namespace Architecture
 							                     it.displayName);
 						}
 
-						var useConstantProperty = it.FindPropertyRelative("UseConstant");
-						var variableProperty = it.FindPropertyRelative("Variable");
+						SerializedProperty useConstantProperty = it.FindPropertyRelative("UseConstant");
+						SerializedProperty variableProperty = it.FindPropertyRelative("Variable");
 
 						Utils.GenerateAndSetVariable(useConstantProperty, variableProperty, path);
 					}

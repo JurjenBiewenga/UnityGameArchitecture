@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Architecture
 {
@@ -28,8 +29,8 @@ namespace Architecture
 
         public static string GetPropertyType(SerializedProperty property)
         {
-            var type = property.type;
-            var match = Regex.Match(type, @"PPtr<\$(.*?)>");
+            string type = property.type;
+            Match match = Regex.Match(type, @"PPtr<\$(.*?)>");
             if (match.Success)
                 type = match.Groups[1].Value;
             return type;
@@ -42,7 +43,7 @@ namespace Architecture
             Directory.CreateDirectory(Path.Combine(Application.dataPath,
                                                    Path.GetDirectoryName(path)));
             string assetDatabasePath = Path.Combine("Assets", path);
-            var assetAtPath =
+            Object assetAtPath =
                 AssetDatabase.LoadAssetAtPath(assetDatabasePath, typeof(object));
             if (assetAtPath != null)
             {
@@ -52,7 +53,7 @@ namespace Architecture
 
             assetDatabasePath = AssetDatabase.GenerateUniqueAssetPath(assetDatabasePath);
 
-            var so = ScriptableObject.CreateInstance(Utils.GetPropertyType(variableProperty));
+            ScriptableObject so = ScriptableObject.CreateInstance(Utils.GetPropertyType(variableProperty));
             AssetDatabase.CreateAsset(so, assetDatabasePath);
 
             variableProperty.objectReferenceValue = so;

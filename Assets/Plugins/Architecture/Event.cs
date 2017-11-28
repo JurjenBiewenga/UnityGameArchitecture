@@ -16,7 +16,7 @@ namespace Architecture
 
         public void Invoke(T param)
         {
-            for (var i = _listeners.Count - 1; i >= 0; i--)
+            for (int i = _listeners.Count - 1; i >= 0; i--)
             {
                 EventCall eventCall = _listeners[i];
                 if (_listeners[i].methodInfo != null)
@@ -28,7 +28,7 @@ namespace Architecture
                 }
             }
 
-            for (var i = 0; i < _runtimeListeners.Count; i++)
+            for (int i = 0; i < _runtimeListeners.Count; i++)
             {
                 _runtimeListeners[i].Invoke(param);
             }
@@ -60,7 +60,7 @@ namespace Architecture
 
         public void Invoke(T param, X param2)
         {
-            for (var i = _listeners.Count - 1; i >= 0; i--)
+            for (int i = _listeners.Count - 1; i >= 0; i--)
             {
                 EventCall eventCall = _listeners[i];
                 if (_listeners[i].methodInfo != null)
@@ -72,7 +72,7 @@ namespace Architecture
                 }
             }
 
-            for (var i = 0; i < _runtimeListeners.Count; i++)
+            for (int i = 0; i < _runtimeListeners.Count; i++)
             {
                 _runtimeListeners[i].Invoke(param, param2);
             }
@@ -104,7 +104,7 @@ namespace Architecture
 
         public void Invoke(T param, X param2, Y param3)
         {
-            for (var i = _listeners.Count - 1; i >= 0; i--)
+            for (int i = _listeners.Count - 1; i >= 0; i--)
             {
                 EventCall eventCall = _listeners[i];
                 if (_listeners[i].methodInfo != null)
@@ -116,7 +116,7 @@ namespace Architecture
                 }
             }
 
-            for (var i = 0; i < _runtimeListeners.Count; i++)
+            for (int i = 0; i < _runtimeListeners.Count; i++)
             {
                 _runtimeListeners[i].Invoke(param, param2, param3);
             }
@@ -148,7 +148,7 @@ namespace Architecture
 
         public void Invoke(T param, X param2, Y param3, Z param4)
         {
-            for (var i = _listeners.Count - 1; i >= 0; i--)
+            for (int i = _listeners.Count - 1; i >= 0; i--)
             {
                 EventCall eventCall = _listeners[i];
                 if (_listeners[i].methodInfo != null)
@@ -160,7 +160,7 @@ namespace Architecture
                 }
             }
 
-            for (var i = 0; i < _runtimeListeners.Count; i++)
+            for (int i = 0; i < _runtimeListeners.Count; i++)
             {
                 _runtimeListeners[i].Invoke(param, param2, param3, param4);
             }
