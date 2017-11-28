@@ -59,15 +59,6 @@ namespace Architecture
             }
         }
 
-        public static string GetPropertyType(SerializedProperty property)
-        {
-            var type = property.type;
-            var match = Regex.Match(type, @"PPtr<\$(.*?)>");
-            if (match.Success)
-                type = match.Groups[1].Value;
-            return type;
-        }
-
         public GenericMenu GenerateMenu(SerializedProperty property, SerializedProperty useConstantProperty, SerializedProperty variableProperty)
         {
             GenericMenu menu = new GenericMenu();
@@ -90,32 +81,9 @@ namespace Architecture
                                             property.displayName);
             }
 
-            menu.AddItem(new GUIContent("Create variable at " + path), false, () =>
-                                                                              {
-                                                                                  useConstantProperty.boolValue = false;
+            menu.AddItem(new GUIContent("Create variable at " + path), false, () => { Utils.GenerateAndSetVariable(useConstantProperty, variableProperty, path); });
 
-                                                                                  Directory.CreateDirectory(Path.Combine(Application.dataPath,
-                                                                                                                         Path.GetDirectoryName(path)));
-                                                                                  string assetDatabasePath = Path.Combine("Assets", path);
-                                                                                  var assetAtPath =
-                                                                                      AssetDatabase.LoadAssetAtPath(assetDatabasePath, typeof(object));
-                                                                                  if (assetAtPath != null)
-                                                                                  {
-                                                                                      if (assetAtPath.GetType().Name == GetPropertyType(variableProperty))
-                                                                                          return;
-                                                                                  }
-
-                                                                                  assetDatabasePath = AssetDatabase.GenerateUniqueAssetPath(assetDatabasePath);
-
-                                                                                  var so = ScriptableObject.CreateInstance(GetPropertyType(variableProperty));
-                                                                                  AssetDatabase.CreateAsset(so, assetDatabasePath);
-
-                                                                                  variableProperty.objectReferenceValue = so;
-
-                                                                                  useConstantProperty.serializedObject.ApplyModifiedProperties();
-                                                                              });
-
-            string[] assetGuids = AssetDatabase.FindAssets("t:" + GetPropertyType(variableProperty));
+            string[] assetGuids = AssetDatabase.FindAssets("t:" + Utils.GetPropertyType(variableProperty));
             if (assetGuids.Length > 0)
             {
                 menu.AddSeparator("");

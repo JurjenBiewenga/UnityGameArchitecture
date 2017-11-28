@@ -50,7 +50,7 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
 
-                string variableName = GetTypeName(type) + "Variable";
+                string variableName = Utils.GetTypeName(type) + "Variable";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(variableName);
 
                 var listType = new CodeTypeReference(typeof(Variable<>));
@@ -81,8 +81,8 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
 
-                string variableName = GetTypeName(type) + "Variable";
-                string referenceName = GetTypeName(type) + "Reference";
+                string variableName = Utils.GetTypeName(type) + "Variable";
+                string referenceName = Utils.GetTypeName(type) + "Reference";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceName);
 
                 var listType = new CodeTypeReference(typeof(Reference<,>));
@@ -100,7 +100,7 @@ namespace Architecture
                             }}
                             return reference.Value;
                         }}
-                ", GetTypeName(type).ToLower(), referenceName));
+                ", Utils.GetTypeName(type).ToLower(), referenceName));
 
                 codeType.Members.Add(implicitMethod);
 
@@ -126,8 +126,8 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
 
-                string referenceName = GetTypeName(type) + "Reference";
-                string referenceDrawerName = GetTypeName(type) + "ReferenceDrawer";
+                string referenceName = Utils.GetTypeName(type) + "Reference";
+                string referenceDrawerName = Utils.GetTypeName(type) + "ReferenceDrawer";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(referenceDrawerName);
 
                 codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomPropertyDrawer)),
@@ -157,8 +157,8 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
 
-                string variableName = GetTypeName(type) + "Variable";
-                string variableDrawerName = GetTypeName(type) + "VariableDrawer";
+                string variableName = Utils.GetTypeName(type) + "Variable";
+                string variableDrawerName = Utils.GetTypeName(type) + "VariableDrawer";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(variableDrawerName);
 
                 codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomEditor)),
@@ -189,7 +189,7 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
 
-                string runtimeSetName = GetTypeName(type) + "RuntimeSet";
+                string runtimeSetName = Utils.GetTypeName(type) + "RuntimeSet";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(runtimeSetName);
 
                 var listType = new CodeTypeReference(typeof(RuntimeSet<>));
@@ -220,7 +220,7 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
 
-                string staticSetName = GetTypeName(type) + "StaticSet";
+                string staticSetName = Utils.GetTypeName(type) + "StaticSet";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(staticSetName);
 
                 var listType = new CodeTypeReference(typeof(StaticSet<>));
@@ -251,7 +251,7 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
 
-                string name = GetTypeName(type) + "SingleComponentReference";
+                string name = Utils.GetTypeName(type) + "SingleComponentReference";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(name);
 
                 var listType = new CodeTypeReference(typeof(SingleComponentReference<>));
@@ -554,24 +554,6 @@ namespace Architecture
 
                 tw.Close();
             }
-        }
-
-        public static string GetTypeName(Type type)
-        {
-            if (type == typeof(float))
-            {
-                return "Float";
-            }
-            else if (type == typeof(int))
-            {
-                return "Int";
-            }
-            else if (type == typeof(bool))
-            {
-                return "Bool";
-            }
-
-            return type.Name;
         }
     }
 }
