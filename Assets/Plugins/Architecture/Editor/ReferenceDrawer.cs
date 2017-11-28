@@ -36,17 +36,20 @@ namespace Architecture
                 if (variableProperty.objectReferenceValue != null)
                 {
                     EditorGUI.PropertyField(pos1, variableProperty, new GUIContent(property.displayName));
-                    SerializedObject variable = new SerializedObject(variableProperty.objectReferenceValue);
-                    SerializedProperty persistentProperty = variable.FindProperty("Persistent");
-                    SerializedProperty valueProperty = variable.FindProperty("Value");
-                    SerializedProperty defaultValueProperty = variable.FindProperty("DefaultValue");
-                    if (persistentProperty.boolValue)
+                    if (variableProperty.objectReferenceValue != null)
                     {
-                        EditorGUI.PropertyField(pos2, valueProperty, new GUIContent());
-                    }
-                    else
-                    {
-                        EditorGUI.PropertyField(pos2, defaultValueProperty, new GUIContent());
+                        SerializedObject variable = new SerializedObject(variableProperty.objectReferenceValue);
+                        SerializedProperty persistentProperty = variable.FindProperty("Persistent");
+                        SerializedProperty valueProperty = variable.FindProperty("Value");
+                        SerializedProperty defaultValueProperty = variable.FindProperty("DefaultValue");
+                        if (persistentProperty.boolValue)
+                        {
+                            EditorGUI.PropertyField(pos2, valueProperty, new GUIContent());
+                        }
+                        else
+                        {
+                            EditorGUI.PropertyField(pos2, defaultValueProperty, new GUIContent());
+                        }
                     }
                 }
                 else
