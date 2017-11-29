@@ -42,6 +42,7 @@ namespace Architecture
                         SerializedProperty persistentProperty = variable.FindProperty("Persistent");
                         SerializedProperty valueProperty = variable.FindProperty("Value");
                         SerializedProperty defaultValueProperty = variable.FindProperty("DefaultValue");
+                        EditorGUI.BeginChangeCheck();
                         if (persistentProperty.boolValue)
                         {
                             EditorGUI.PropertyField(pos2, valueProperty, new GUIContent());
@@ -49,6 +50,10 @@ namespace Architecture
                         else
                         {
                             EditorGUI.PropertyField(pos2, defaultValueProperty, new GUIContent());
+                        }
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            variable.ApplyModifiedProperties();
                         }
                     }
                 }
