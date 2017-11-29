@@ -68,11 +68,11 @@ namespace Architecture
                                                                                             useConstantProperty.serializedObject.ApplyModifiedProperties();
                                                                                         });
             menu.AddSeparator("");
-            GameObject go = (property.serializedObject.targetObject as GameObject);
+            Component go = (property.serializedObject.targetObject as Component);
             string path = "";
-            if (go.scene.IsValid())
+            if (go.gameObject.scene.IsValid() && PrefabUtility.GetPrefabObject(go.gameObject) == null)
             {
-                path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", go.scene.name, property.serializedObject.targetObject.name,
+                path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", go.gameObject.scene.name, property.serializedObject.targetObject.name,
                                             property.displayName);
             }
             else

@@ -14,10 +14,10 @@ MonoBehaviour:
   sourceGenerationPath: Scripts/SO/
   namespaceName: Architecture
   variableTypes:
-  - m_Name: Single
-    m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
+  - m_Name: Int32
+    m_AssemblyQualifiedName: System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral,
       PublicKeyToken=b77a5c561934e089
-    m_AssemblyName: System.Single
+    m_AssemblyName: System.Int32
   runtimeSetTypes: []
   staticSetTypes: []
   eventTypes:
@@ -69,8 +69,4 @@ MonoBehaviour:
       m_AssemblyQualifiedName: System.Single, mscorlib, Version=2.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       m_AssemblyName: System.Single
-  singleComponentReferenceTypes:
-  - m_Name: Object
-    m_AssemblyQualifiedName: UnityEngine.Object, UnityEngine, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-    m_AssemblyName: UnityEngine.Object
+  singleComponentReferenceTypes: []

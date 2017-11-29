@@ -20,7 +20,7 @@ namespace Architecture
 					string path = "";
 					if (go != null)
 					{
-						if (go.gameObject.scene.IsValid())
+						if (go.gameObject.scene.IsValid() && PrefabUtility.GetPrefabObject(go.gameObject) == null)
 						{
 							path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", go.gameObject.scene.name, it.serializedObject.targetObject.name,
 							                     it.displayName);
