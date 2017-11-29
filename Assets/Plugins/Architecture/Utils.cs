@@ -46,6 +46,44 @@ namespace Architecture
 
             return type.Name;
         }
+        
+        public static string GetImplicitConversionTypeName(Type type)
+        {
+            if (type == typeof(float))
+            {
+                return "float";
+            }
+            else if (type == typeof(short))
+            {
+                return "short";
+            }
+            else if (type == typeof(ushort))
+            {
+                return "ushort";
+            }
+            else if (type == typeof(int))
+            {
+                return "int";
+            }
+            else if (type == typeof(uint))
+            {
+                return "uint";
+            }
+            else if (type == typeof(ulong))
+            {
+                return "ulong";
+            }
+            else if (type == typeof(long))
+            {
+                return "long";
+            }
+            else if (type == typeof(bool))
+            {
+                return "bool";
+            }
+
+            return type.Name;
+        }
 
         public static string GetPropertyType(SerializedProperty property)
         {

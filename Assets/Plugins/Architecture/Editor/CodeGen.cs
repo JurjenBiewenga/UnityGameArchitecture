@@ -100,7 +100,7 @@ namespace Architecture
                             }}
                             return reference.Value;
                         }}
-                ", Utils.GetTypeName(type).ToLower(), referenceName));
+                ", Utils.GetImplicitConversionTypeName(type), referenceName));
 
                 codeType.Members.Add(implicitMethod);
 
