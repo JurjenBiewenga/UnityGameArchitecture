@@ -43,7 +43,7 @@ namespace Architecture
                         SerializedProperty valueProperty = variable.FindProperty("Value");
                         SerializedProperty defaultValueProperty = variable.FindProperty("DefaultValue");
                         EditorGUI.BeginChangeCheck();
-                        if (persistentProperty.boolValue)
+                        if (persistentProperty.boolValue || Application.isPlaying)
                         {
                             EditorGUI.PropertyField(pos2, valueProperty, new GUIContent());
                         }

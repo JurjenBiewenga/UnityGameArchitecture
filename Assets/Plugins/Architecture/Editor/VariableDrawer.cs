@@ -23,7 +23,7 @@ namespace Architecture
         {
             serializedObject.Update();
             EditorGUILayout.PropertyField(persistentProperty);
-            if (persistentProperty.boolValue)
+            if (persistentProperty.boolValue || Application.isPlaying)
                 EditorGUILayout.PropertyField(valueProperty);
             else
                 EditorGUILayout.PropertyField(defaultValueProperty);
