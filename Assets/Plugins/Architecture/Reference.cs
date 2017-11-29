@@ -39,5 +39,18 @@ namespace Architecture
                 }
             }
         }
+
+        public override string ToString()
+        {
+            if (UseConstant)
+                return this.ConstantValue.ToString();
+            else
+            {
+                if (this.Variable != null)
+                    return this.Variable.CurrentValue.ToString();
+                else
+                    return base.ToString();
+            }
+        }
     }
 }
