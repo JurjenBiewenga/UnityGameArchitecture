@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Architecture
 {
-	public abstract class StaticSet<T> : ScriptableObject
+	public abstract class StaticSet<T> : ScriptableObject, IEnumerable<T>
 	{
 		[SerializeField]
 		private List<T> Items = new List<T>();
@@ -23,6 +23,16 @@ namespace Architecture
 		{
 			get { return Items[i]; }
 			private set { Items[i] = value; }
+		}
+
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
+		{
+			return Items.GetEnumerator();
+		}
+
+		public IEnumerator GetEnumerator()
+		{
+			return Items.GetEnumerator();
 		}
 	}
 }

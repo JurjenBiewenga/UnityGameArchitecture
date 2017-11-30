@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Architecture
 {
-    public abstract class RuntimeSet<T> : ScriptableObject
+    public abstract class RuntimeSet<T> : ScriptableObject, IEnumerable<T>
     {
         public List<T> Items = new List<T>();
 
@@ -33,6 +33,16 @@ namespace Architecture
         {
             get { return Items[i]; }
             set { Items[i] = value; }
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return Items.GetEnumerator();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return Items.GetEnumerator();
         }
     }
 }
