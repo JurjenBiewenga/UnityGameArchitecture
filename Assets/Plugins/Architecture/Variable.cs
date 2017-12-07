@@ -25,5 +25,10 @@ namespace Architecture
                 this.Value = this.DefaultValue;
             }
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }
