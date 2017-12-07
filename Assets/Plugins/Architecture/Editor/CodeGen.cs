@@ -57,7 +57,7 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Variables/{0}\"", variableName)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -196,7 +196,7 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Runtime Sets/{0}\"", runtimeSetName)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -227,7 +227,7 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Static Sets/{0}\"", staticSetName)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -258,7 +258,7 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Component References/{0}\"", name)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -385,7 +385,7 @@ namespace Architecture
                 codeType.Members.Add(addListenerMethod);
                 codeType.Members.Add(removeListenerMethod);
                 codeType.BaseTypes.Add(typeof(ScriptableObject));
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Game Events/{0}\"", name)))));
 
                 codeNamespace.Types.Add(codeType);
 
