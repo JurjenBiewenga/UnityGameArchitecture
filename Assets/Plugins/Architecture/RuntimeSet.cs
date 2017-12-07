@@ -29,12 +29,17 @@ namespace Architecture
             Items.Remove(item);
         }
 
+        public int Count
+        {
+            get { return Items.Count; }
+        }
+
         public T this[int i]
         {
             get { return Items[i]; }
             set { Items[i] = value; }
         }
-
+        
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return Items.GetEnumerator();

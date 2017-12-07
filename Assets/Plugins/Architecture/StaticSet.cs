@@ -25,6 +25,11 @@ namespace Architecture
 			private set { Items[i] = value; }
 		}
 
+		public int Count
+		{
+			get { return Items.Count; }
+		}
+
 		IEnumerator<T> IEnumerable<T>.GetEnumerator()
 		{
 			return Items.GetEnumerator();
