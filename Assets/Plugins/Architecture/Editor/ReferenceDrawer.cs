@@ -45,11 +45,11 @@ namespace Architecture
                         EditorGUI.BeginChangeCheck();
                         if (persistentProperty.boolValue || Application.isPlaying)
                         {
-                            EditorGUI.PropertyField(pos2, valueProperty, new GUIContent());
+                            EditorGUI.PropertyField(pos2, valueProperty, new GUIContent(), true);
                         }
                         else
                         {
-                            EditorGUI.PropertyField(pos2, defaultValueProperty, new GUIContent());
+                            EditorGUI.PropertyField(pos2, defaultValueProperty, new GUIContent(), true);
                         }
                         if (EditorGUI.EndChangeCheck())
                         {
@@ -59,7 +59,7 @@ namespace Architecture
                 }
                 else
                 {
-                    EditorGUI.PropertyField(position, variableProperty, new GUIContent(property.displayName));
+                    EditorGUI.PropertyField(position, variableProperty, new GUIContent(property.displayName), true);
                 }
             }
         }
@@ -75,18 +75,27 @@ namespace Architecture
             menu.AddSeparator("");
             Component go = (property.serializedObject.targetObject as Component);
             string path = "";
-            if (go.gameObject.scene.IsValid() && PrefabUtility.GetPrefabObject(go.gameObject) == null)
+            if (go != null)
             {
-                path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", go.gameObject.scene.name, property.serializedObject.targetObject.name,
-                                            property.displayName);
+                if (go.gameObject.scene.IsValid() && PrefabUtility.GetPrefabObject(go.gameObject) == null)
+                {
+                    path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", go.gameObject.scene.name, property.serializedObject.targetObject.name,
+                                         property.displayName);
+                }
+                else
+                {
+                    path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", "Prefabs", property.serializedObject.targetObject.name,
+                                         property.displayName);
+                }
             }
             else
             {
-                path = string.Format(@"Scriptable Objects\{0}\{1}\{2}.asset", "Prefabs", property.serializedObject.targetObject.name,
-                                            property.displayName);
+                path = string.Format(@"Scriptable Objects\{0}\{1}.asset", property.serializedObject.targetObject.name,
+                                     property.displayName);
             }
 
-            menu.AddItem(new GUIContent("Create variable at " + path), false, () => { Utils.GenerateAndSetVariable(useConstantProperty, variableProperty, path); });
+            menu.AddItem(new GUIContent("Create variable at " + path), false,
+                         () => { Utils.GenerateAndSetVariable(useConstantProperty, variableProperty, path); });
 
             string[] assetGuids = AssetDatabase.FindAssets("t:" + Utils.GetPropertyType(variableProperty));
             if (assetGuids.Length > 0)

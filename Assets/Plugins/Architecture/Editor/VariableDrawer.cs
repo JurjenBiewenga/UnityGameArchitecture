@@ -22,12 +22,23 @@ namespace Architecture
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(persistentProperty);
+            if (EditorGUI.EndChangeCheck())
+            {
+                serializedObject.ApplyModifiedProperties();
+                Repaint();    
+            }
+            
+            EditorGUI.BeginChangeCheck();
             if (persistentProperty.boolValue || Application.isPlaying)
-                EditorGUILayout.PropertyField(valueProperty);
+                EditorGUILayout.PropertyField(valueProperty, true);
             else
-                EditorGUILayout.PropertyField(defaultValueProperty);
-            serializedObject.ApplyModifiedProperties();
+                EditorGUILayout.PropertyField(defaultValueProperty, true);
+            if (EditorGUI.EndChangeCheck())
+            {
+                serializedObject.ApplyModifiedProperties();
+            }
         }
     }
 }
