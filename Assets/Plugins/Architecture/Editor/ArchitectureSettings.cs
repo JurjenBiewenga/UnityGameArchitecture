@@ -27,6 +27,11 @@ namespace Architecture
         public static ArchitectureSettings GetSettings()
         {
             ArchitectureSettings settings = AssetDatabase.LoadAssetAtPath<ArchitectureSettings>(settingsPath);
+            if (settings == null)
+            {
+                settings = ScriptableObject.CreateInstance<ArchitectureSettings>();
+                AssetDatabase.CreateAsset(settings, settingsPath);
+            }
             return settings;
         }
     }
