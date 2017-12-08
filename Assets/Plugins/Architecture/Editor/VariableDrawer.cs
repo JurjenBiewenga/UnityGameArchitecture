@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace Architecture
 {
+    [CustomEditor(typeof(BaseVariable), true)]
+    [CanEditMultipleObjects]
     public class VariableDrawer : Editor
     {
         private SerializedProperty persistentProperty;

@@ -7,6 +7,8 @@ using Object = UnityEngine.Object;
 
 namespace Architecture
 {
+    [CustomPropertyDrawer(typeof(BaseReference), true)]
+    [CanEditMultipleObjects]
     public class ReferenceDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

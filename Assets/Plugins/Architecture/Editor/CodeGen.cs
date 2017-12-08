@@ -22,8 +22,8 @@ namespace Architecture
             settings = ArchitectureSettings.GetSettings();
             GenerateNewVariables();
             GenerateNewReferences();
-            GenerateReferenceDrawers();
-            GenerateVariableDrawers();
+//            GenerateReferenceDrawers();
+//            GenerateVariableDrawers();
             GenerateRuntimeSets();
             GenerateStaticSets();
             GenerateSingleComponentReferences();
@@ -57,7 +57,11 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Variables/{0}\"", variableName)))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)),
+                                                                           new
+                                                                               CodeAttributeArgument(new CodeSnippetExpression(string
+                                                                                                                                   .Format("menuName = \"Variables/{0}\"",
+                                                                                                                                           variableName)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -196,7 +200,11 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Runtime Sets/{0}\"", runtimeSetName)))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)),
+                                                                           new
+                                                                               CodeAttributeArgument(new CodeSnippetExpression(string
+                                                                                                                                   .Format("menuName = \"Runtime Sets/{0}\"",
+                                                                                                                                           runtimeSetName)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -227,7 +235,11 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Static Sets/{0}\"", staticSetName)))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)),
+                                                                           new
+                                                                               CodeAttributeArgument(new CodeSnippetExpression(string
+                                                                                                                                   .Format("menuName = \"Static Sets/{0}\"",
+                                                                                                                                           staticSetName)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -258,7 +270,11 @@ namespace Architecture
                 listType.TypeArguments.Add(type);
 
                 codeType.BaseTypes.Add(listType);
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Component References/{0}\"", name)))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)),
+                                                                           new
+                                                                               CodeAttributeArgument(new CodeSnippetExpression(string
+                                                                                                                                   .Format("menuName = \"Component References/{0}\"",
+                                                                                                                                           name)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -280,7 +296,7 @@ namespace Architecture
                 codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
                 codeNamespace.Imports.Add(new CodeNamespaceImport("UnityEngine"));
                 ccu.Namespaces.Add(codeNamespace);
-                string name = eventSettings.name;
+                string name = eventSettings.name + "Event";
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(name);
                 CodeTypeReference listType = null;
                 if (eventSettings.parameters.Length == 1)
@@ -328,7 +344,7 @@ namespace Architecture
                 CodeMemberMethod invokeMethod = new CodeMemberMethod();
                 invokeMethod.Name = "Invoke";
                 string paramString = "";
-                CodeVariableReferenceExpression[] parameterReferences= new CodeVariableReferenceExpression[eventSettings.parameters.Length]; 
+                CodeVariableReferenceExpression[] parameterReferences = new CodeVariableReferenceExpression[eventSettings.parameters.Length];
                 for (var i = 0; i < eventSettings.parameters.Length; i++)
                 {
                     CodeMemberField testingField = new CodeMemberField(eventSettings.parameters[i].SystemType, "testVariable" + i);
@@ -362,7 +378,7 @@ namespace Architecture
                 invokeMethod.Statements.Add(new CodeVariableDeclarationStatement(typeof(int), "i"));
                 invokeMethod.Statements.Add(forLoop);
                 invokeMethod.Attributes = MemberAttributes.Final | MemberAttributes.Public;
-                
+
                 CodeMemberMethod invokeWithTestingParams = new CodeMemberMethod();
                 invokeWithTestingParams.Name = "InvokeWithTestingParams";
                 invokeWithTestingParams.Attributes = MemberAttributes.Final | MemberAttributes.Public;
@@ -385,7 +401,11 @@ namespace Architecture
                 codeType.Members.Add(addListenerMethod);
                 codeType.Members.Add(removeListenerMethod);
                 codeType.BaseTypes.Add(typeof(ScriptableObject));
-                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)), new CodeAttributeArgument(new CodeSnippetExpression(string.Format("menuName = \"Game Events/{0}\"", name)))));
+                codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CreateAssetMenuAttribute)),
+                                                                           new
+                                                                               CodeAttributeArgument(new CodeSnippetExpression(string
+                                                                                                                                   .Format("menuName = \"Game Events/{0}\"",
+                                                                                                                                           name)))));
 
                 codeNamespace.Types.Add(codeType);
 
@@ -435,7 +455,7 @@ namespace Architecture
                 invokeMethod.Attributes = MemberAttributes.Final | MemberAttributes.Public;
 
                 CodeMemberField gameEventField = new CodeMemberField(new CodeTypeReference(eventName), "GameEvent");
-                CodeMemberField gameEventListenerField = new CodeMemberField(eventSettings.name, "Response");
+                CodeMemberField gameEventListenerField = new CodeMemberField(eventSettings.name + "Event", "Response");
                 gameEventField.Attributes = MemberAttributes.Final | MemberAttributes.Public;
                 gameEventListenerField.Attributes = MemberAttributes.Final | MemberAttributes.Public;
 
@@ -473,7 +493,7 @@ namespace Architecture
                 ccu.Namespaces.Add(codeNamespace);
 
                 string drawerName = eventSettings.name + "EventDrawer";
-                
+
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(drawerName);
 
                 codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomPropertyDrawer)),
@@ -486,7 +506,7 @@ namespace Architecture
                 WriteToFile("Editor/" + drawerName, ccu);
             }
         }
-        
+
         public static void GenerateGameEventDrawers()
         {
             foreach (EventSettings eventSettings in settings.eventTypes)
@@ -503,7 +523,7 @@ namespace Architecture
 
                 string drawerName = eventSettings.name + "GameEventDrawer";
                 string gameEventName = eventSettings.name + "GameEvent";
-                
+
                 CodeTypeDeclaration codeType = new CodeTypeDeclaration(drawerName);
 
                 codeType.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CustomEditor)),
@@ -545,6 +565,11 @@ namespace Architecture
                 Directory.CreateDirectory(finalDirectory);
             }
 
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            
             using (StreamWriter sw = new StreamWriter(path, false))
             {
                 IndentedTextWriter tw = new IndentedTextWriter(sw, "    ");

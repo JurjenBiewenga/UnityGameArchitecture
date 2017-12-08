@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Architecture
 {
-    public abstract class Reference<T, X> where T : Variable<X>
+    public abstract class Reference<T, X> : BaseReference where T : Variable<X>
     {
         [SerializeField]
         protected X ConstantValue;

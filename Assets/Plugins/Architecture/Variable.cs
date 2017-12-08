@@ -2,7 +2,7 @@
 
 namespace Architecture
 {
-    public abstract class Variable<T> : ScriptableObject
+    public abstract class Variable<T> : BaseVariable
     {
         public bool Persistent;
 
@@ -29,6 +29,24 @@ namespace Architecture
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public override object GetValue()
+        {
+            return this.Value;
+        }
+        
+        public override void SetValue(object obj)
+        {
+            T castedObj = (T)obj;
+            if (this.Persistent)
+            {
+                this.Value = castedObj;
+            }
+            else
+            {
+                DefaultValue = castedObj;
+            }
         }
     }
 }
