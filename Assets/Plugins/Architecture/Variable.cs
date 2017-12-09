@@ -20,7 +20,7 @@ namespace Architecture
 
         private void OnEnable()
         {
-            if (!this.Persistent)
+            if (!this.Persistent && Application.isPlaying)
             {
                 this.Value = this.DefaultValue;
             }
