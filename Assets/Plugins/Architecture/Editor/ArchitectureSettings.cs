@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,6 +31,11 @@ namespace Architecture
             if (settings == null)
             {
                 settings = ScriptableObject.CreateInstance<ArchitectureSettings>();
+                string dir = Path.Combine(Application.dataPath, Path.GetDirectoryName(settingsPath).Replace("Assets/", ""));
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
                 AssetDatabase.CreateAsset(settings, settingsPath);
             }
             return settings;
