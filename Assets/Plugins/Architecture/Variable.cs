@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using UnityEngine;
 
 namespace Architecture
 {
@@ -24,6 +28,12 @@ namespace Architecture
             {
                 this.Value = this.DefaultValue;
             }
+#if UNITY_EDITOR
+            if (!this.Persistent && EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                this.Value = this.DefaultValue;
+            }
+#endif
         }
 
         public override string ToString()
