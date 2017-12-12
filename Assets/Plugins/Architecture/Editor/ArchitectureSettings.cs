@@ -40,6 +40,12 @@ namespace Architecture
             }
             return settings;
         }
+
+        [ContextMenu("Generate")]
+        public void Generate()
+        {
+            CodeGen.Generate();
+        }
     }
 
     [Serializable]
