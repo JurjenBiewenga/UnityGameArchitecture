@@ -1,4 +1,6 @@
 ﻿
+
+using System;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -48,14 +50,17 @@ namespace Architecture
         
         public override void SetValue(object obj)
         {
-            T castedObj = (T)obj;
-            if (this.Persistent)
+            if (obj != null)
             {
-                this.Value = castedObj;
-            }
-            else
-            {
-                DefaultValue = castedObj;
+                T castedObj = (T)Convert.ChangeType(obj, typeof(T));
+                if (this.Persistent || Application.isPlaying)
+                {
+                    this.Value = castedObj ;
+                }
+                else
+                {
+                    DefaultValue = castedObj;
+                }
             }
         }
     }
